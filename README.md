@@ -17,7 +17,7 @@ and continuous validation.
 - **Ralph Loop Mode**: An orchestration agent that autonomously implements tasks
   with continuous verification
 - **Structured Artifacts**: Clear, traceable files for specifications, plans, and tasks
-- Integration with external issue trackers via JIRA-ID naming convention
+- Works with any folder structure — no rigid directory convention required
 - Optional Human-in-the-loop (HITL) phase review for stakeholder review at critical points during
   implementation.
 ## Why Craftsman?
@@ -28,11 +28,11 @@ Craftsman is an **experiment in structured agent orchestration**, exploring thre
 
 Using **XML-like tags and structured prompts**, Craftsman tests whether LLMs can execute multi-phase processes (discovery → interview → specification → planning → implementation → verification) without losing track of their role or breaking the workflow.
 
-### 2. Can we integrate external issue trackers seamlessly?
+### 2. Can we structure planning artifacts for autonomous implementation?
 
-Real teams use JIRA, Linear, or GitHub Issues.
-Craftsman uses the **JIRA-ID naming convention** (`.agents/changes/JIRA-123-description/`)
-to maintain traceability between planning artifacts and external project management systems.
+Craftsman organizes change requests into a folder of planning artifacts
+(specification, plan, task files) that any coding agent can pick up and implement.
+The folder can live anywhere in your repository.
 
 ### 3. Can we implement using a Ralph Wiggum loop directly in GitHub Copilot?
 
@@ -68,15 +68,15 @@ Craftsman currently provides two complementary agent modes:
 Plan Mode systematically explores your change request through:
 
 1. **Deep context discovery** — scans your project structure, documentation, and existing patterns
-2. **Structured interviews** — asks 10-15 clarifying questions, then 5-10 technical follow-ups
+2. **Structured interviews** — asks clarifying questions, then targeted technical follow-ups
 3. **Specification generation** — produces a reviewable spec with requirements, constraints, and success criteria
 4. **Implementation planning** — creates detailed architectural plan with dependencies
 5. **Task breakdown** — generates independent, actionable task files for implementation
 
-**Output artifacts** (in `.agents/changes/<JIRA>-<description>/`):
+**Output artifacts** (in your chosen working folder):
 
 ```text
-.agents/changes/JIRA-123-feature-name/
+my-feature/
 ├── 00.request.md              # Initial change request
 ├── 01-specification.md        # Reviewable design decisions and requirements
 ├── 02-plan.md                 # Technical architecture and dependencies
@@ -91,10 +91,8 @@ Plan Mode systematically explores your change request through:
 
 **Files Description**:
 
-- `00.request.md`: The initial human request, often a poorly written JIRA ticket.
+- `00.request.md`: The initial human request describing the change.
 - `01-specification.md`: The main output of Plan Mode, containing reviewable design and architectural choices without technical details or code.
-- `01-specification.jira.txt`: A JIRA-friendly version of the specification
-  for easy putting issues in review in JIRA.
 - `02-plan.md`: A highly technical architecture plan that includes task dependencies
   and low-level details. This file is never used after task breakdown is finished.
 - `03-tasks-00-READBEFORE.md`: critical context and instructions for all tasks,
@@ -177,9 +175,9 @@ to avoid polluting the commit history with intermediate implementation steps.
 
    ![Plan Mode selection screenshot](images/agent-plan-mode.png)
 
-2. Provide your change request (or paste JIRA ticket)
+2. Provide your change request (or paste an issue tracker ticket description)
 3. Answer the clarifying questions
-4. Review the generated specification in `.agents/changes/<JIRA-123>-<short-description>/01-specification.md`
+4. Review the generated specification in your working folder's `01-specification.md`
 5. Approve plan and task breakdown
 
 ### Implementing with Ralph Loop
@@ -188,7 +186,7 @@ to avoid polluting the commit history with intermediate implementation steps.
    ![Ralph Loop selection screenshot](images/agent-ralp-mode.png)
 2. By default, the implementation is autonomous without human intervention.
    You can choose to enable HITL (Human-in-the-Loop) mode to pause at phase boundaries for review.
-3. Provide path to planning artifacts (e.g., `.agents/changes/IDEA-01-refresh-command/`)
+3. Provide path to planning artifacts (e.g., `my-feature/` or `.agents/changes/refresh-command/`)
 
    ![Ralph Loop Trigger](images/agent-ralph-trigger.png)
 
@@ -203,14 +201,14 @@ to avoid polluting the commit history with intermediate implementation steps.
 
 **Pausing Ralph Loop**: Create `PAUSE.md` in the planning folder to safely pause the loop for manual task edits.
 
-## Concrete advices
+## Concrete advice
 
-- Start with a small request in markdown (`.agents/changes/JIRA-123-description/00.request.md`)
+- Start with a small request in markdown (e.g., `my-feature/00.request.md` or `.agents/changes/my-feature/00.request.md`)
 - Use a mid-size model like Claude Sonnet 4.5 for the Plan Mode.
 - Reserve Opus only when tasks require complex reasoning or multi-phase implementation (20+ tasks)
 - Use Claude Haiku for implementation. But for the moment, you can use Sonnet for the Ralph loop,
   it will not consume 1 premium token per request (to my experience, it consumes 1 premium request
-  after ~15 taks + reviewers)
+  after ~15 tasks + reviewers)
 
 ## Typical End-to-End Workflow
 
@@ -279,8 +277,3 @@ especially if you have suggestions for improvement.
 ## Acknowledgments
 
 Inspired by the "Ralph Wiggum" loop concept and refined through experimentation with GitHub Copilot's Agent Mode system.
-
-**Read more**:
-
-- [Original Reddit post](https://www.reddit.com/r/GithubCopilot/comments/1qapkdg/ralph_wiggum_technic_in_vs_code_copilot_with/)
-- [X/Twitter thread](https://x.com/stibbons31/status/2020456046259589229)
